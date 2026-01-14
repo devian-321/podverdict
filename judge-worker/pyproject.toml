@@ -1,0 +1,17 @@
+[project]
+name = "judge-worker"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { email = "tiwri35@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+judge-worker = "judge_worker:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
