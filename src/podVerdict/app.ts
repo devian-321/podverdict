@@ -1,6 +1,6 @@
 import express, { type Application, type NextFunction, type Request, type Response } from 'express'
 import dotenv from 'dotenv'
-import { ROLES } from './dataclasses/enums'
+import { Role } from '../generated/prisma';
 import authRouter from "./services/routes/auth.routes"
 
 dotenv.config();
@@ -15,10 +15,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use("/api/v1/auth", authRouter)
-
-
-
-
 
 
 app.get('/Health', (req: Request, res: Response) => {

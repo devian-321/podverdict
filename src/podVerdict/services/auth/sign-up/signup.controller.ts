@@ -2,8 +2,10 @@ import { type Request, type Response } from "express";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
-import { ROLES } from "../../../dataclasses/enums";
+import { Role } from "../../../../generated/prisma";
 import { type User } from "../../models/user/main";
+import prisma from "../../../lib/prisma"
+
 
 export const register = async (req: Request, res: Response) => {
     try {
@@ -20,8 +22,13 @@ export const register = async (req: Request, res: Response) => {
         if (typeof email !== 'string') {
             return res.status(400).json({ error: `email should be type string, recieved: ${typeof email}` })
         }
+        const existingUser = await prisma.user.findFirst({
+            where: { OR: [{ email }, { username }] }
+        });
 
-        //Also check for username already taken and email. 
+        if (existingUser) {
+            return res.status(400).json({ error: "Username or Email already taken" });
+        }
 
         const passwordHash = await bcrypt.hash(password, 12)
         const newUser: User = {
@@ -29,9 +36,10 @@ export const register = async (req: Request, res: Response) => {
             username,
             email,
             passwordHash,
-            role: ROLES.CONTESTANT,
+            role: Role.CONTESTANT,
             createdOn: new Date()
-        }
+        };
+        const userCreated = await prisma.user.create({ data: newUser })
         const token = jwt.sign({ userid: newUser.id, role: newUser.role }, process.env.JWT_SECRET || 'dev_secret', { expiresIn: '24h' })
         res.status(201).json({
             message: "User registered successfully",

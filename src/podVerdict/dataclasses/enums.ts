@@ -1,4 +1,4 @@
-export enum ROLES {
-    ADMIN = "admin",
-    CONTESTANT = "contestant"
-}
+// export enum ROLES {
+//     ADMIN = "admin",
+//     CONTESTANT = "contestant"
+// }

@@ -1,10 +1,10 @@
-import { ROLES } from "../../../dataclasses/enums"
+import { Role } from "../../../../generated/prisma"
 export interface User {
     id: string, //UUID
     username: string,
     email: string,
     passwordHash: string,
-    role: ROLES,
+    role: Role,
     createdOn: Date
 
 }
