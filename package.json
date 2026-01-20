@@ -1,0 +1,39 @@
+{
+  "name": "podverdict",
+  "version": "1.0.0",
+  "description": "This is a fullstack project for a coding platform where people can test their coding skills against the problems and test cases.",
+  "homepage": "https://github.com/devian-321/podverdict#readme",
+  "bugs": {
+    "url": "https://github.com/devian-321/podverdict/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devian-321/podverdict.git"
+  },
+  "license": "ISC",
+  "author": "Anshuman Tiwari",
+  "type": "commonjs",
+  "main": "/home/anshubeta/Desktop/projects_js/podverdict/api-service/src/server.ts",
+  "scripts": {
+    "test": "npm run dev",
+    "dev": "npm run index.ts"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.0.8",
+    "@types/uuid": "^10.0.0",
+    "prisma": "^7.2.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.2.0",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "uuid": "^13.0.0"
+  }
+}
