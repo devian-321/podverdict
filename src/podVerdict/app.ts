@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import { Role } from '../generated/prisma';
 import authRouter from "./services/routes/auth.routes"
 import userRouter from './services/routes/user.routes';
+import problemRouter from './services/routes/problem.routes';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/problems", problemRouter);
 
 
 app.get('/Health', (req: Request, res: Response) => {
