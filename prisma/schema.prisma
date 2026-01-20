@@ -17,6 +17,12 @@ enum Role {
   CONTESTANT
 }
 
+enum DifficultyLevel {
+  EASY
+  MEDIUM
+  HARD
+}
+
 model User {
   id           String   @id @default(uuid())
   username     String   @unique
@@ -24,4 +30,25 @@ model User {
   passwordHash String
   role         Role     @default(CONTESTANT)
   createdOn    DateTime @default(now())
+  problems     Problem[]
+}
+
+model Problem {
+  id            String   @id @default(uuid())
+  title         String
+  description   String
+  difficulty    DifficultyLevel @default(EASY)
+  testCases     TestCase[]
+  author        User            @relation(fields: [authorId], references: [id])
+  authorId      String
+  createdOn     DateTime        @default(now())
+}
+
+model TestCase {
+  id         String   @id @default(uuid())
+  input      String   
+  expected   String   
+  isHidden   Boolean  @default(true)
+  problemId  String
+  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
 }
