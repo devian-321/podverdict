@@ -2,6 +2,7 @@ import express, { type Application, type NextFunction, type Request, type Respon
 import dotenv from 'dotenv'
 import { Role } from '../generated/prisma';
 import authRouter from "./services/routes/auth.routes"
+import userRouter from './services/routes/user.routes';
 
 dotenv.config();
 
@@ -14,7 +15,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next();
 });
 
-app.use("/api/v1/auth", authRouter)
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/users", userRouter);
 
 
 app.get('/Health', (req: Request, res: Response) => {
