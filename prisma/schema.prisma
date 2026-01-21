@@ -31,6 +31,7 @@ model User {
   role         Role     @default(CONTESTANT)
   createdOn    DateTime @default(now())
   problems     Problem[]
+  Submissions  Submission[]
 }
 
 model Problem {
@@ -39,6 +40,7 @@ model Problem {
   description   String
   difficulty    DifficultyLevel @default(EASY)
   testCases     TestCase[]
+  submissions   Submission[]
   author        User            @relation(fields: [authorId], references: [id])
   authorId      String
   createdOn     DateTime        @default(now())
@@ -52,3 +54,33 @@ model TestCase {
   problemId  String
   problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
 }
+
+
+enum SubmissionStatus {
+  PENDING
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  RUNTIME_ERROR
+  COMPILATION_ERROR
+}
+
+enum Language {
+  PYTHON
+  CPP 
+  JAVASCRIPT 
+}
+
+
+model Submission {
+  id          String           @id @default(uuid())
+  code        String           @db.Text
+  language    Language         @default(PYTHON)
+  status      SubmissionStatus @default(PENDING)
+  userId      String
+  user        User             @relation(fields: [userId], references: [id])
+  problemId   String
+  problem     Problem          @relation(fields: [problemId], references: [id])
+  createdOn   DateTime         @default(now())
+}
+
