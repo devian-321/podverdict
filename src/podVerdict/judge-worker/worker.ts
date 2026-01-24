@@ -6,10 +6,10 @@ import path from "path";
 import prisma from "../lib/prisma"; 
 
 const execPromise = promisify(exec);
-
+console.log(process.env.REDIS_HOST)
 const redisConnection = {
-  host: "127.0.0.1",
-  port: 6379,
+  host: process.env.REDIS_HOST || "127.0.0.1", 
+  port: parseInt(process.env.REDIS_PORT || "6379"),
   maxRetriesPerRequest: null,
 };
 
@@ -58,37 +58,28 @@ const worker = new Worker(
       console.error("❌ Problem or Test Cases not found in DB");
       return;
     }
-
-    // 2. Setup Temporary Workspace
     const workDir = path.join(process.cwd(), "temp", submissionId);
     if (!fs.existsSync(workDir)) fs.mkdirSync(workDir, { recursive: true });
 
     const fileName = `solution.${config.fileExt}`;
     const filePath = path.join(workDir, fileName);
     fs.writeFileSync(filePath, code);
-
-    // Assume ACCEPTED until a test case fails
     let finalStatus = "ACCEPTED";
 
     try {
       for (const testCase of problem.testCases) {
         console.log(`   📝 Testing Case: ${testCase.id}`);
-
-        // Construct Secure Podman Command
-        // -i: interactive (to receive stdin)
-        // --rm: remove container after run
-        // --net none: no internet
-        // --memory: RAM limit
         const podmanCmd = `echo "${testCase.input.replace(/"/g, '\\"')}" | podman run -i --rm \
                 --net none \
                 --memory 128m \
                 --pids-limit 64 \
+                --cpus="0.5" \
+                --pids-limit=20 \
                 -v "${workDir}:/app:ro" \
                 ${config.image} \
                 sh -c "${config.runCmd}"`;
 
         try {
-          // Asynchronous execution with a 5-second timeout
           const { stdout, stderr } = await execPromise(podmanCmd, {
             timeout: 5000,
             killSignal: "SIGKILL",
@@ -102,7 +93,6 @@ const worker = new Worker(
             break;
           }
         } catch (err: any) {
-          // Handle Timeouts or Crashes
           if (err.killed || err.signal === "SIGKILL") {
             console.log(`   ❌ TIME_LIMIT_EXCEEDED`);
             finalStatus = "TIME_LIMIT_EXCEEDED";
@@ -117,7 +107,6 @@ const worker = new Worker(
       console.error("Critical Judge Error:", error);
       finalStatus = "RUNTIME_ERROR";
     } finally {
-      // 3. Cleanup Files
       try {
         if (fs.existsSync(workDir)) {
           fs.rmSync(workDir, { recursive: true, force: true });
@@ -126,7 +115,6 @@ const worker = new Worker(
         console.error("Cleanup failed:", cleanupErr);
       }
 
-      // 4. Update Database
       await prisma.submission.update({
         where: { id: submissionId },
         data: { status: finalStatus as any },

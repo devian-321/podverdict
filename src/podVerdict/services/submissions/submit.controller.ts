@@ -4,7 +4,7 @@ import prisma from "../../lib/prisma";
 import { Queue } from "bullmq";
 
 
-const submissionQueue = new Queue("submission-queue", { connection: { host: "localhost", port: 6379, maxRetriesPerRequest: null } });
+const submissionQueue = new Queue("submission-queue", { connection: { host: process.env.REDIS_HOST || "localhost", port: 6379, maxRetriesPerRequest: null } });
 
 export const submitCode = async (req: AuthRequest, res: Response) => {
     try {
