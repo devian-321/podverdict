@@ -1,0 +1,45 @@
+services:
+  db:
+    image: docker.io/library/postgres:15
+    container_name: podverdict-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: podverdict
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: docker.io/library/redis:alpine
+    container_name: podverdict-redis
+    ports:
+      - "6379:6379"
+
+  api:
+    build: .
+    container_name: podverdict-api
+    command: bun run index.ts
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://user:password@db:5432/podverdict"
+      REDIS_HOST: "redis"
+    depends_on:
+      - db
+      - redis
+
+  worker:
+    build: .
+    container_name: podverdict-worker
+    command: bun run src/podVerdict/judge-worker/worker.ts
+    privileged: true 
+    volumes:
+      - /run/user/1000/podman/podman.sock:/run/podman/podman.sock
+      - ./temp:/app/temp:rw
+    environment:
+      DATABASE_URL: "postgresql://user:password@db:5432/podverdict"
+      REDIS_HOST: "redis"
+      DOCKER_HOST: "unix:///run/podman/podman.sock"
+    depends_on:
+      - redis
+      - db

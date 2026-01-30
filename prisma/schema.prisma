@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+enum Role {
+  ADMIN
+  CONTESTANT
+}
+
+enum DifficultyLevel {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(CONTESTANT)
+  createdOn    DateTime @default(now())
+  problems     Problem[]
+  Submissions  Submission[]
+}
+
+model Problem {
+  id            String   @id @default(uuid())
+  title         String
+  description   String
+  difficulty    DifficultyLevel @default(EASY)
+  testCases     TestCase[]
+  submissions   Submission[]
+  author        User            @relation(fields: [authorId], references: [id])
+  authorId      String
+  createdOn     DateTime        @default(now())
+}
+
+model TestCase {
+  id         String   @id @default(uuid())
+  input      String   
+  expected   String   
+  isHidden   Boolean  @default(true)
+  problemId  String
+  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
+
+enum SubmissionStatus {
+  PENDING
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  RUNTIME_ERROR
+  COMPILATION_ERROR
+}
+
+enum Language {
+  PYTHON
+  CPP 
+  JAVASCRIPT 
+}
+
+
+model Submission {
+  id          String           @id @default(uuid())
+  code        String           @db.Text
+  language    Language         @default(PYTHON)
+  status      SubmissionStatus @default(PENDING)
+  userId      String
+  user        User             @relation(fields: [userId], references: [id])
+  problemId   String
+  problem     Problem          @relation(fields: [problemId], references: [id])
+  createdOn   DateTime         @default(now())
+}
+
